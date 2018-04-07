@@ -55,7 +55,7 @@ sub NumberChaper {
 		}
 	}
 	closeFile($file); # FEICHANDO O ARQUIVO REFERENETE AO LIVRO QUE SE DESEJA CAPTURAR AS INFORMAÇÕES;
-	system("echo -e 'Numero de Capitulos do Livro: '$count >> RELATORIO.txt");
+	system("echo 'Numero de Capitulos do Livro: '$count >> RELATORIO.txt");
 }
 
 ####################################
@@ -106,7 +106,6 @@ sub WordVogalFinal {
 	
 	saveFile("PTVogal_Aux.txt", $msg);
 	system("cat PTVogal_Aux.txt | sort -u > PTVogal.txt"); system("rm PTVogal_Aux.txt");
-	system("echo 'Numero de Palavras repetidas no livro:'`cat PTVogal.txt | wc -l`");
 	system("echo 'Numero de Palavras Terminadas em Vogal: '`cat PTVogal.txt | wc -l` >> RELATORIO.txt");
 }
 
@@ -118,6 +117,7 @@ sub WordVogalFinal {
 print "Digite o nome do arquivo: "; my $filename = <>;
 
 if($filename ne "") {
+	system("rm RELATORIO.txt");
 	NumberChaper($filename);
 	NumberWordEq($filename);
 	WordVogalFinal($filename);
@@ -125,7 +125,7 @@ if($filename ne "") {
 	print "FORAM CRIADOS 3 ARQUIVOS:\n";
 	print "RELATORIO.txt - contendo o numero de Capitulos do Livro, o numero de Palavras Repetidas e o Numero de Palavras terminadas em Vogal;\n";
 	print "PTVogal.txt - contem todas as palavras terminadas em vogal encontradas no Livro;\n";
-	print "PRepetidas.txt - contem a frequecia que cada palavra apareceu no texto (no minimo 2 vezes\n).";
+	print "PRepetidas.txt - contem a frequecia que cada palavra apareceu no texto (no minimo 2 vezes)\n.";
 
 	print "\n\nTecle <ENTER> para encerrar!"; <>;
 } else {
