@@ -79,7 +79,7 @@ sub NumberWordEq {
 	#system("clear");
 	my $msg = "";
 	for (sort {$count_of->{$b} <=> $count_of->{$a} } keys %{$count_of}) {
-		$msg = $msg . $_ . ': ' . $count_of->{$_} . " vezes.\n" if ($count_of->{$_} > 1);
+		$msg = $msg . $_ . ': ' . $count_of->{$_} . " vezes.\n" if ($count_of->{$_} > 1) and ($_ ne "");
 	}
 
 	saveFile("PRepetidas.txt", $msg);
