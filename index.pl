@@ -9,6 +9,14 @@ sub openFile {
 	return $f;
 }
 
+sub saveFile {
+	my ($filename, $data) = @_;
+	open (my $f, '>', $filename) or die "Não foi possivel abrir o arquivo '$filename' $!";
+		print $f "$data\n";
+
+	close($f);
+}
+
 sub closeFile {
 	close(shift);
 }
@@ -47,8 +55,7 @@ sub NumberChaper {
 		}
 	}
 	closeFile($file); # FEICHANDO O ARQUIVO REFERENETE AO LIVRO QUE SE DESEJA CAPTURAR AS INFORMAÇÕES;
-
-	print "\n\nNumero de Capitulos do Livro: $count\n\n";
+	system("echo -e 'Numero de Capitulos do Livro: '$count >> RELATORIO.txt");
 }
 
 ####################################
@@ -69,11 +76,14 @@ sub NumberWordEq {
 	}
 	closeFile($file); # FEICHANDO O ARQUIVO REFERENETE AO LIVRO QUE SE DESEJA CAPTURAR AS INFORMAÇÕES;
 
-	system("clear");
-	print "NUMERO DE PALAVRAS REPETIDAS:\n";
+	#system("clear");
+	my $msg = "";
 	for (sort {$count_of->{$b} <=> $count_of->{$a} } keys %{$count_of}) {
-		print $_ . ': ' . $count_of->{$_} . " vezes.\n" if ($count_of->{$_} > 1);
+		$msg = $msg . $_ . ': ' . $count_of->{$_} . " vezes.\n" if ($count_of->{$_} > 1);
 	}
+
+	saveFile("PRepetidas.txt", $msg);
+	system("echo 'Numero de Palavras Repetidas: '`cat PRepetidas.txt | wc -l` >> RELATORIO.txt");
 }
 
 ####################################
@@ -81,7 +91,7 @@ sub NumberWordEq {
 ####################################
 sub WordVogalFinal {
 	my $filename = shift;
-
+	my $msg = "";
 	my $file = openFile($filename); # ABRINDO ARQUIVO DO LIVRO AO QUAL SE FARAM OS LEVANTAMENTOS
 	while (my $row = <$file>) {
 		chomp $row; # REMOVE O CARACTER '\n'
@@ -89,36 +99,35 @@ sub WordVogalFinal {
 		$row =~ s/[^a-zA-Z0-9]+/ /g; # CAPTURA TODAS AS PALAVRAS DA LINHA
 
 		for(split /\s+/, $row) {
-			print "$_\n" if $_ =~ /.+[aeiou]$/;
+			$msg = $msg . lc "$_\n" if ($_ =~ /.+[aeiou]$/) and ($_ ne "") ;
 		}
 	}
 	closeFile($file); # FEICHANDO O ARQUIVO REFERENETE AO LIVRO QUE SE DESEJA CAPTURAR AS INFORMAÇÕES;
+	
+	saveFile("PTVogal_Aux.txt", $msg);
+	system("cat PTVogal_Aux.txt | sort -u > PTVogal.txt"); system("rm PTVogal_Aux.txt");
+	system("echo 'Numero de Palavras repetidas no livro:'`cat PTVogal.txt | wc -l`");
+	system("echo 'Numero de Palavras Terminadas em Vogal: '`cat PTVogal.txt | wc -l` >> RELATORIO.txt");
 }
+
 ####################################
 #               MAIN               #
 ####################################
 
-system("clear");
+#system("clear");
 print "Digite o nome do arquivo: "; my $filename = <>;
 
 if($filename ne "") {
-	#my $file = openFile($filename); # ABRINDO ARQUIVO DO LIVRO AO QUAL SE FARAM OS LEVANTAMENTOS
+	NumberChaper($filename);
+	NumberWordEq($filename);
+	WordVogalFinal($filename);
 
-	while (1) {
-		menu; my $op = <>; chomp $op; # FUNÇÃO QUE EXIBE O MENU DE PESQUISA E LENDO VALOR DIGITADO
-		
-		if($op eq "0") {
-			print "Saindo ...\n"; last;
-		} elsif ($op eq "1") {
-			WordVogalFinal($filename);
-		} elsif ($op eq "2") {
-			NumberChaper($filename);
-		} elsif ($op eq "3") {
-			NumberWordEq($filename);
-		} else {
-			print "Opção invalida....Tente Novamente.\n";
-		}
-	}
+	print "FORAM CRIADOS 3 ARQUIVOS:\n";
+	print "RELATORIO.txt - contendo o numero de Capitulos do Livro, o numero de Palavras Repetidas e o Numero de Palavras terminadas em Vogal;\n";
+	print "PTVogal.txt - contem todas as palavras terminadas em vogal encontradas no Livro;\n";
+	print "PRepetidas.txt - contem a frequecia que cada palavra apareceu no texto (no minimo 2 vezes\n).";
 
-#	closeFile($file); # FEICHANDO O ARQUIVO REFERENETE AO LIVRO QUE SE DESEJA CAPTURAR AS INFORMAÇÕES;
+	print "\n\nTecle <ENTER> para encerrar!"; <>;
+} else {
+	print "O nome do arquivo não foi passado !!! Encenrrando o programa...\n"
 }
